@@ -1,71 +1,26 @@
 //Two Dimensional Array with the of the schema
 let dataSchema = [];
-let cellSize = 30;
+
+//Variables in relations with the cells.
+let cellSize = 50;
 let minCellSize = 5;
-let maxCellSize = 300;
+let maxCellSize = 200;
 let amountCellsX = 8;
 let amountCellsY = 8;
 
 let schemaMarginX = 0;
 let schemaMarginY = 0;
-let schemaMarginLeft = 0;
-let totalWidth = 0;
 let widthSchema = 0;
 let heightSchema = 0;
 
 //Colors
-let colorLines;
-let colorBg;
-let colorControl;
-
+let colorLines = "#c6a5d7";
+let colorBg = "#e9eff9";
 let colorUser = "#0000FF";
 
 //Stroke levels
 let strokeThin = 1;
-let strokeRegular = 2;
-let strokeBold = 4;
-
-function refreshDimensions() {
-    //Compute the cell Size. Min 5 max 35;
-    //The width of the whole thing =  + widthSchema + schemaMarginLeft 
-    let totalSquaresX = amountCellsX;
-    let totalSquaresY =  amountCellsY; 
-
-    //Compute the size of the cell.
-    cellSize = (width - (50)) / totalSquaresX; 
-
-    //Check if we need space horizontally
-    if( (totalSquaresX * cellSize) > (width - (3 * cellSize))) {
-        cellSize = (width - (3 * cellSize)) / totalSquaresX; 
-    }
-    //Check if we need space vertically
-    if((totalSquaresY * cellSize) > (height - (3 * cellSize))) {
-        cellSize = (height - (3 * cellSize)) / totalSquaresY;
-    }
-
-    //Constraint it into the min and max.
-    if(cellSize < minCellSize) {
-        cellSize = minCellSize;
-    }
-    if(cellSize > maxCellSize) {
-        cellSize = maxCellSize;
-    }
-
-    totalWidth = totalSquaresX * cellSize;
-
-    //Margin of the Schema
-    schemaMarginLeft = (width - (cellSize * amountCellsX)) / 2;
-    schemaMarginX = schemaMarginLeft;
-    schemaMarginY = (height - (cellSize * amountCellsY)) / 2;
-
-    //Width and height of the schema.
-    widthSchema = amountCellsX * cellSize;
-    heightSchema = amountCellsY * cellSize;
-
-    //Allign margins on the grid.
-    schemaMarginX = roundOnGrid(schemaMarginX);
-    schemaMarginY = roundOnGrid(schemaMarginY);
-}
+let strokeRegular = 3;
 
 //Function to populate the initial array
 function populate(oldData = []) {
@@ -84,28 +39,41 @@ function populate(oldData = []) {
     return newArray;
 }
 
+function refreshDimensions() {
+    let totalSquaresX = amountCellsX;
+    let totalSquaresY =  amountCellsY; 
 
-function setup() {
-    //Populate empty 2D array
-    dataSchema = populate(dataSchema);
-    //Create canvas.
-    let cnv =createCanvas(windowWidth, windowHeight);
-    cnv.elt.addEventListener("contextmenu", e => e.preventDefault());
-    cnv.style('display', 'block');
-    //Define the colors
-    colorLines = color(210,210,255);
-    colorBg = color(250);
-    colorControl = color(20,20,255);
-    refreshDimensions();
-    refreshScreen();
-}
+    //Compute the size of the cell.
+    cellSize = (width) / totalSquaresX; 
 
-function draw() {
-    hoverGrid();
-    drawGridFromScratch();
-    if(mouseIsPressed) {
-        updateWhenMouse();
+    //Check if we need space horizontally
+    if( (totalSquaresX * cellSize) > (width - (3 * cellSize))) {
+        cellSize = (width - (3 * cellSize)) / totalSquaresX; 
     }
+    //Check if we need space vertically
+    if((totalSquaresY * cellSize) > (height - (3 * cellSize))) {
+        cellSize = (height - (3 * cellSize)) / totalSquaresY;
+    }
+
+    //Constraint it into the min and max.
+    if(cellSize < minCellSize) {
+        cellSize = minCellSize;
+    }
+    if(cellSize > maxCellSize) {
+        cellSize = maxCellSize;
+    }
+
+    //Margin of the Schema
+    schemaMarginX = (width - (cellSize * amountCellsX)) / 2;
+    schemaMarginY = (height - (cellSize * amountCellsY)) / 2;
+
+    //Width and height of the schema.
+    widthSchema = amountCellsX * cellSize;
+    heightSchema = amountCellsY * cellSize;
+
+    //Allign margins on the grid.
+    schemaMarginX = roundOnGrid(schemaMarginX);
+    schemaMarginY = roundOnGrid(schemaMarginY);
 }
 
 //Recompute geometry and re display on window resize.
@@ -137,13 +105,15 @@ function drawGridFromScratch() {
     }
 }
 
+//Function to animate the hovering over the grid.
 function hoverGrid() {
     let x = int((mouseX - schemaMarginX) / cellSize);
     let y = int((mouseY - schemaMarginY) / cellSize);
     if(x >= 0 && x < amountCellsX && y >= 0 && y < amountCellsY) {
         noFill();
-        stroke(colorControl)
-        strokeWeight(strokeBold);
+        stroke(color(colorLines));
+        noFill();
+        strokeWeight(strokeRegular);
         rect(x * cellSize + schemaMarginX, 
             y * cellSize + schemaMarginY, 
             cellSize, 
@@ -174,9 +144,9 @@ function mouseReleased() {
 
 //Draw the background Grid
 function drawMegaGrid() {
-    stroke(colorLines);
+    stroke(color(colorLines));
     strokeWeight(strokeThin);
-    fill(colorBg);
+    fill(color(colorBg));
     for(let y = 0; y < height / cellSize; y++) {
         for(let x = 0; x < width / cellSize; x ++) {
             rect(x * cellSize, y * cellSize, cellSize, cellSize);
@@ -215,3 +185,22 @@ function resizeSchema(w, h) {
 }
 
 formSize.addEventListener("submit", handleFormSize);
+
+function setup() {
+    //Populate empty 2D array
+    dataSchema = populate(dataSchema);
+    //Create canvas.
+    let cnv =createCanvas(windowWidth, windowHeight);
+    cnv.elt.addEventListener("contextmenu", e => e.preventDefault());
+    cnv.style('display', 'block');
+    refreshDimensions();
+    refreshScreen();
+}
+
+function draw() {
+    drawGridFromScratch();
+    hoverGrid();
+    if(mouseIsPressed) {
+        updateWhenMouse();
+    }
+}
