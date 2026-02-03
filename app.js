@@ -2,9 +2,9 @@
 let dataSchema = [];
 let cellSize = 30;
 let minCellSize = 5;
-let maxCellSize = 100;
-let amountCellsX = 5;
-let amountCellsY = 5;
+let maxCellSize = 300;
+let amountCellsX = 8;
+let amountCellsY = 8;
 
 let schemaMarginX = 0;
 let schemaMarginY = 0;
@@ -17,6 +17,8 @@ let heightSchema = 0;
 let colorLines;
 let colorBg;
 let colorControl;
+
+let colorUser = "#0000FF";
 
 //Stroke levels
 let strokeThin = 1;
@@ -71,10 +73,10 @@ function populate(oldData = []) {
     for (let x = 0; x < amountCellsX; x++) {
         let line = new Array(amountCellsY);
         for (let y = 0; y < amountCellsY; y++) {
-            if (oldData?.[x] !== undefined && (oldData[x][y] === 0 || oldData[x][y] === 1)) {
+            if (oldData?.[x] !== undefined && typeof oldData[x][y] === "string") {
                 line[y] = oldData[x][y];
             } else {
-                line[y] = 0;
+                line[y] = "#ffffff";
             }
         }
         newArray.push(line);
@@ -99,8 +101,8 @@ function setup() {
 }
 
 function draw() {
-    drawGridFromScratch();
     hoverGrid();
+    drawGridFromScratch();
     if(mouseIsPressed) {
         updateWhenMouse();
     }
@@ -129,9 +131,7 @@ function drawGridFromScratch() {
     strokeWeight(strokeRegular);
     for(let y = 0; y < amountCellsY; y++) {
         for(let x = 0; x < amountCellsX; x++) {
-            if(dataSchema[x][y] == 0) {
-                fill(255);
-            } else fill(0);
+            fill(color(dataSchema[x][y]));
             rect(schemaMarginX + x * cellSize, schemaMarginY + y * cellSize, cellSize, cellSize);
         }
     }
@@ -156,10 +156,10 @@ function updateGrid() {
     let y = int((mouseY - schemaMarginY) / cellSize);
     if(x >= 0 && x < amountCellsX && y >= 0 && y < amountCellsY) {
         if(mouseButton == LEFT) {
-            dataSchema[x][y] = 1;
+            dataSchema[x][y] = colorUser;
         } 
         else {
-            dataSchema[x][y] = 0;
+            dataSchema[x][y] = "#ffffff";
         }
         stroke(0);
         stroke(strokeRegular);
@@ -191,7 +191,6 @@ function roundOnGrid(n) {
 
 //Use the form to change the size of the thing.
 let formSize = document.getElementById("formSize");
-let colorPicker = document.getElementById("colorPicker");
 let colorPicked = document.getElementById("colorPicked")
 
 function handleFormSize(event) {
@@ -201,11 +200,11 @@ function handleFormSize(event) {
     resizeSchema(newWidth, newHeight);
 }
 
-function handleColorPicker(event) {
-    event.preventDefault();
-    let newColor = colorPicked.value;
-    alert(newColor);
-}
+
+
+colorPicked.addEventListener("input", () => {
+    colorUser = colorPicked.value
+})
 
 function resizeSchema(w, h) {
     amountCellsX = int(w);
@@ -216,4 +215,3 @@ function resizeSchema(w, h) {
 }
 
 formSize.addEventListener("submit", handleFormSize);
-colorPicker.addEventListener("submit", handleColorPicker);
