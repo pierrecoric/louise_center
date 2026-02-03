@@ -4,18 +4,30 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" href="style/style.css">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Henny+Penny&display=swap" rel="stylesheet">
+        <title>louise.center</title>
     </head>
     <body>
-        <form id="formSize">
-            <label for="newWidthSchema">Width Schema</label>
-            <input type="number" id="newWidthSchema" min="1" max="50" value="9">
-            <label for="newHeightSchema">Height Schema</label>
-            <input type="number" id="newHeightSchema" min="1" max="50" value="9">
-            <button type="submit">Resize Canvas</button>
-            <input type="color" id="colorPicked" value="#0000FF" />
-
-
-
+        <div id="controls">
+            <h1 id="title">louise.center</h1>
+            <div id="widthHeight">
+                <label for="newWidthSchema">Width Schema</label>
+                <input type="number" id="newWidthSchema" min="1" max="50" value="7">
+                <label for="newHeightSchema">Height Schema</label>
+                <input type="number" id="newHeightSchema" min="1" max="50" value="7">
+                <label for="highLight">highlight line</label>
+                <input type="checkbox" id="hightLightCheckBox" checked>
+                <input type="number" id="highLight" min="1" max="7" value="3">
+            </div>
+            <div id="colors">
+                <input type="color" class="colorPicker" value="#7B904B"/>
+                <input type="color" class="colorPicker" value="#564360"/>
+                <input type="color" class="colorPicker" value="#B33951"/>
+                <input type="button" value="save pattern!" id="save">
+            </div>
+        </div>
         <script src="https://cdn.jsdelivr.net/npm/p5@1.11.1/lib/p5.min.js"></script>
         <script src="app.js"></script>
     </body>

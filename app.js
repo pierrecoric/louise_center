@@ -5,22 +5,34 @@ let dataSchema = [];
 let cellSize = 50;
 let minCellSize = 5;
 let maxCellSize = 200;
-let amountCellsX = 8;
-let amountCellsY = 8;
+let amountCellsX = 7;
+let amountCellsY = 7;
 
 let schemaMarginX = 0;
 let schemaMarginY = 0;
-let widthSchema = 0;
-let heightSchema = 0;
 
 //Colors
 let colorLines = "#c6a5d7";
 let colorBg = "#e9eff9";
-let colorUser = "#0000FF";
+let colorUser = "#7B904B";
 
 //Stroke levels
 let strokeThin = 1;
 let strokeRegular = 3;
+
+//Variables for the highlighted line.
+let highLightLine = true;
+let highlightedLine = 7;
+let highLightField = document.getElementById("highLight");
+let highlightCheckBox = document.getElementById("hightLightCheckBox");
+highlightCheckBox.addEventListener("change", () => {
+    if(highLightLine === true) {
+        highLightLine = false;
+    }
+    else {
+        highLightLine = true;
+    }
+});
 
 //Function to populate the initial array
 function populate(oldData = []) {
@@ -39,20 +51,31 @@ function populate(oldData = []) {
     return newArray;
 }
 
+//Function to handle dimensions.
 function refreshDimensions() {
-    let totalSquaresX = amountCellsX;
-    let totalSquaresY =  amountCellsY; 
 
+    if(windowHeight > windowWidth) {
+        resizeCanvas(windowWidth - 160, windowHeight / 2);
+    } else {
+        resizeCanvas(windowWidth - 160, windowHeight - 160);
+    }
+    //Reside the P5.js canvas.
+    
+
+    //Handle the highlighted line
+    highLightField.setAttribute("max", amountCellsY);
+    highLightField.setAttribute("value", amountCellsY);
+    highlightedLine = amountCellsY;
     //Compute the size of the cell.
-    cellSize = (width) / totalSquaresX; 
+    cellSize = width / (amountCellsX + 4); 
 
     //Check if we need space horizontally
-    if( (totalSquaresX * cellSize) > (width - (3 * cellSize))) {
-        cellSize = (width - (3 * cellSize)) / totalSquaresX; 
+    if( (amountCellsX * cellSize) > (width - (2 * cellSize))) {
+        cellSize = (width - (2 * cellSize)) / amountCellsX;
     }
     //Check if we need space vertically
-    if((totalSquaresY * cellSize) > (height - (3 * cellSize))) {
-        cellSize = (height - (3 * cellSize)) / totalSquaresY;
+    if((amountCellsY * cellSize) > (height - (2 * cellSize))) {
+        cellSize = (height - (2 * cellSize)) / amountCellsY;
     }
 
     //Constraint it into the min and max.
@@ -67,23 +90,17 @@ function refreshDimensions() {
     schemaMarginX = (width - (cellSize * amountCellsX)) / 2;
     schemaMarginY = (height - (cellSize * amountCellsY)) / 2;
 
-    //Width and height of the schema.
-    widthSchema = amountCellsX * cellSize;
-    heightSchema = amountCellsY * cellSize;
-
     //Allign margins on the grid.
     schemaMarginX = roundOnGrid(schemaMarginX);
     schemaMarginY = roundOnGrid(schemaMarginY);
 }
 
-//Recompute geometry and re display on window resize.
+//Recompute geometry and re-display on window resize.
 function windowResized() {
-    resizeCanvas(windowWidth, windowHeight);
     refreshDimensions();
     refreshScreen();
 }
 
-//When the mouse is clicked.
 function updateWhenMouse() {
     updateGrid();  
     hoverGrid();
@@ -94,6 +111,7 @@ function refreshScreen() {
     drawGridFromScratch();
 }
 
+//This functions draws the grid that contains the schema.
 function drawGridFromScratch() {
     stroke(0);
     strokeWeight(strokeRegular);
@@ -102,6 +120,11 @@ function drawGridFromScratch() {
             fill(color(dataSchema[x][y]));
             rect(schemaMarginX + x * cellSize, schemaMarginY + y * cellSize, cellSize, cellSize);
         }
+    }
+    if(highLightLine === true) {
+        noFill();
+        stroke(255,0,0);
+        rect(schemaMarginX, (highlightedLine - 1) * cellSize + schemaMarginY, amountCellsX * cellSize, cellSize);
     }
 }
 
@@ -121,6 +144,7 @@ function hoverGrid() {
     }
 }
 
+//Updates the value of a cell in the array based on the mouse position.
 function updateGrid() {
     let x = int((mouseX - schemaMarginX) / cellSize);
     let y = int((mouseY - schemaMarginY) / cellSize);
@@ -131,16 +155,8 @@ function updateGrid() {
         else {
             dataSchema[x][y] = "#ffffff";
         }
-        stroke(0);
-        stroke(strokeRegular);
-        rect(schemaMarginX + x * cellSize, schemaMarginY + y * cellSize, cellSize, cellSize);
     } 
 }
-
-function mouseReleased() {
-    refreshScreen();
-}
-
 
 //Draw the background Grid
 function drawMegaGrid() {
@@ -159,23 +175,31 @@ function roundOnGrid(n) {
     return int(n / cellSize) * cellSize;
 }
 
-//Use the form to change the size of the thing.
-let formSize = document.getElementById("formSize");
-let colorPicked = document.getElementById("colorPicked")
+//Handle the input of colors by the user.
+let colorPickers = document.querySelectorAll(".colorPicker");
+colorPickers.forEach(picker => {
+    picker.addEventListener("input", () => {
+        colorUser = picker.value;
+    });
+    picker.addEventListener("click", () => {
+        colorUser = picker.value;
+    });
+});
 
-function handleFormSize(event) {
-    event.preventDefault();
-    let newWidth = document.getElementById("newWidthSchema").value;
-    let newHeight = document.getElementById("newHeightSchema").value;
-    resizeSchema(newWidth, newHeight);
-}
+//Changing the position of the highlighted line.
+highLightField.addEventListener("input", () => highlightedLine = highLightField.value);
 
+//Changing the canvas size.
+let newWidth = document.getElementById("newWidthSchema");
+let newHeight = document.getElementById("newHeightSchema");
+newWidth.addEventListener("input", () => resizeSchema(newWidth.value, newHeight.value));
+newHeight.addEventListener("input", () => resizeSchema(newWidth.value, newHeight.value));
 
+//Saving the picture
+let saveButton = document.getElementById("save");
+saveButton.addEventListener("click", () => {saveCanvas();})
 
-colorPicked.addEventListener("input", () => {
-    colorUser = colorPicked.value
-})
-
+//Function to resize the schema in amount of cells.
 function resizeSchema(w, h) {
     amountCellsX = int(w);
     amountCellsY = int(h);
@@ -184,19 +208,21 @@ function resizeSchema(w, h) {
     refreshScreen();
 }
 
-formSize.addEventListener("submit", handleFormSize);
-
+//Setup function.
 function setup() {
     //Populate empty 2D array
     dataSchema = populate(dataSchema);
     //Create canvas.
-    let cnv =createCanvas(windowWidth, windowHeight);
+    let cnv =createCanvas(windowWidth - 160, windowHeight - 160);
+    //Prevent right click on the schema.
     cnv.elt.addEventListener("contextmenu", e => e.preventDefault());
     cnv.style('display', 'block');
+    cnv.id("canvas");
     refreshDimensions();
     refreshScreen();
 }
 
+//The loop.
 function draw() {
     drawGridFromScratch();
     hoverGrid();
